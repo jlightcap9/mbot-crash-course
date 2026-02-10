@@ -1,0 +1,1018 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>mBot Crash Course — Classroom Edition</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#101a33;
+      --panel2:#0f1a2f;
+      --card:#121f3e;
+      --text:#e9f0ff;
+      --muted:#b7c4e6;
+      --accent:#66e3ff;
+      --accent2:#a7ff83;
+      --warn:#ffd36b;
+      --danger:#ff6b8a;
+      --good:#6dffb3;
+      --shadow: 0 20px 50px rgba(0,0,0,.35);
+      --radius: 18px;
+      --radius2: 26px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(102,227,255,.18), transparent 60%),
+        radial-gradient(1000px 700px at 90% 30%, rgba(167,255,131,.12), transparent 55%),
+        radial-gradient(900px 600px at 45% 90%, rgba(255,211,107,.12), transparent 55%),
+        linear-gradient(180deg, #070b14 0%, #0b1220 30%, #070b14 100%);
+      overflow-x:hidden;
+    }
+    a{color:var(--accent); text-decoration:none}
+    a:hover{text-decoration:underline}
+    header{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(10px);
+      background: rgba(7,11,20,.70);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .wrap{max-width:1180px; margin:0 auto; padding:18px 18px;}
+    .topbar{display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:space-between;}
+    .brand{display:flex; align-items:center; gap:12px;}
+    .logo{
+      width:44px; height:44px; border-radius:14px;
+      background: conic-gradient(from 210deg, var(--accent), var(--accent2), var(--warn), var(--accent));
+      box-shadow: 0 12px 30px rgba(102,227,255,.18);
+      position:relative;
+    }
+    .logo:after{
+      content:"";
+      position:absolute; inset:8px;
+      border-radius:12px;
+      background: rgba(11,18,32,.85);
+      border:1px solid rgba(255,255,255,.12);
+    }
+    .brand h1{font-size:18px; margin:0; letter-spacing:.2px}
+    .brand .sub{font-size:12px; color:var(--muted); margin-top:2px}
+    .controls{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+    .pill{
+      display:flex; align-items:center; gap:10px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      padding:8px 12px;
+      border-radius:999px;
+    }
+    .pill label{font-size:12px; color:var(--muted)}
+    select{
+      background:transparent; border:none; color:var(--text);
+      font-size:13px; outline:none;
+    }
+    .btn{
+      cursor:pointer;
+      border:none;
+      border-radius:14px;
+      padding:10px 14px;
+      font-weight:700;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      background: rgba(255,255,255,.08);
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.10);
+      transition: transform .06s ease;
+      user-select:none;
+    }
+    .btn:hover{transform: translateY(-1px)}
+    .btn.good{background: rgba(109,255,179,.14); border-color: rgba(109,255,179,.35)}
+    .btn.danger{background: rgba(255,107,138,.14); border-color: rgba(255,107,138,.35)}
+    .btn.secondary{background: rgba(255,255,255,.06)}
+    .hero{
+      margin-top:14px;
+      background: rgba(16,26,51,.30);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius2);
+      padding:18px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .hero-inner{display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap; justify-content:space-between;}
+    .hero h2{margin:0; font-size:22px; letter-spacing:.2px}
+    .hero p{margin:8px 0 0; color:var(--muted); max-width:680px; line-height:1.45}
+    .chips{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+    .chip{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      color:var(--muted);
+    }
+
+    .grid{display:grid; grid-template-columns: 340px 1fr; gap:16px; align-items:start; margin-top:16px;}
+    @media (max-width: 980px){ .grid{grid-template-columns: 1fr} }
+
+    .panel{
+      background: rgba(16,26,51,.45);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .head{display:flex; justify-content:space-between; align-items:center; padding:14px 14px 8px;}
+    .head h3{margin:0; font-size:14px; letter-spacing:.2px}
+    .badge{
+      font-size:12px;
+      color:var(--muted);
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      padding:4px 8px;
+      border-radius:999px;
+    }
+    .badge.done{border-color: rgba(109,255,179,.35); color: var(--good); background: rgba(109,255,179,.10)}
+    .progress{
+      height:10px; border-radius:999px; background: rgba(255,255,255,.08);
+      overflow:hidden; border:1px solid rgba(255,255,255,.10);
+    }
+    #progressBar{height:100%; width:0%; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .5s ease;}
+    .mini{font-size:12px; color:var(--muted)}
+    .nav{display:flex; flex-direction:column; gap:8px; padding:0 14px 14px;}
+    .nav button{
+      width:100%;
+      text-align:left;
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      cursor:pointer;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      transition: transform .06s ease, background .12s ease;
+    }
+    .nav button:hover{transform: translateY(-1px); background: rgba(255,255,255,.07)}
+    .nav .small{font-size:12px; color:var(--muted); margin-top:2px}
+    .card{
+      background: rgba(18,31,62,.55);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius2);
+      padding:18px;
+      box-shadow: var(--shadow);
+    }
+    .card h3{margin:0 0 8px 0; font-size:18px}
+    .card p{margin:0 0 10px 0; color:var(--muted); line-height:1.5}
+    .step{
+      background: rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      padding:12px;
+      margin-top:12px;
+    }
+    .step h4{margin:0 0 8px 0; font-size:13px}
+    ol{margin:0; padding-left:18px; color:var(--muted)}
+    li{margin-bottom:8px}
+    .toolbar{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px}
+    .codebox{
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.22);
+      padding:12px;
+      overflow:auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      color:#d7e2ff;
+      font-size:12.5px;
+      line-height:1.45;
+      white-space: pre-wrap;
+    }
+    .imgbox{
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      padding:10px;
+      margin-top:12px;
+    }
+    .imgbox img{width:100%; height:auto; border-radius:14px; display:block}
+    .quiz{
+      margin-top:12px;
+      padding-top:12px;
+      border-top:1px solid rgba(255,255,255,.08);
+    }
+    .q{
+      padding:12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .qtitle{margin:0 0 8px 0; font-weight:800}
+    .opts{display:grid; gap:8px}
+    .opt{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:10px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      cursor:pointer;
+      user-select:none;
+    }
+    .opt input{margin-top:3px}
+    .result{
+      margin-top:10px;
+      padding:10px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      color: var(--muted);
+    }
+    .result.good{border-color: rgba(109,255,179,.35); background: rgba(109,255,179,.10); color: var(--good)}
+    .result.bad{border-color: rgba(255,107,138,.35); background: rgba(255,107,138,.10); color: var(--danger)}
+    .hidden{display:none !important}
+    footer{margin:22px 0 34px; color:var(--muted); font-size:12px; text-align:center}
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="wrap topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <h1 id="appTitle">mBot Crash Course — Classroom Edition</h1>
+        <div class="sub" id="appSubtitle">Intro lessons • Team jobs • Debug mindset • Add your own photos</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="pill">
+        <label for="langSel" id="lblLang">Language</label>
+        <select id="langSel" aria-label="Language">
+          <option value="en" selected>English</option>
+          <option value="es">Español</option>
+        </select>
+      </div>
+
+      <button class="btn secondary" id="btnReset" title="Reset progress on this device">🔄 <span id="resetTxt">Reset Progress</span></button>
+      <button class="btn danger" id="btnClearPics" title="Remove saved photos on this device">🧹 <span id="clearPicsTxt">Clear Saved Photos</span></button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="hero" role="banner">
+    <div class="hero-inner">
+      <div>
+        <h2 id="heroTitle">Sense • Think • Act</h2>
+        <p id="heroBlurb">
+          This course is designed for real classrooms: batteries, firmware, stubborn USB connections, and all.
+          Your goal isn’t “perfect robots” — it’s resilient engineers who can test, log bugs, and iterate.
+        </p>
+        <div class="chips" id="heroChips"></div>
+      </div>
+      <div class="toolbar">
+        <a class="btn good" id="btnIde" href="https://ide.mblock.cc/" target="_blank" rel="noopener">🌐 Open mBlock (web)</a>
+        <button class="btn secondary" id="btnPrintLesson">🖨️ Print current lesson</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid">
+    <aside class="sidebar">
+      <div class="panel">
+        <div class="head">
+          <h3 id="navTitle">Course Map</h3>
+          <span class="badge" id="progressBadge">0%</span>
+        </div>
+        <div style="padding:0 14px 12px 14px;">
+          <div class="progress" aria-label="Progress"><div id="progressBar"></div></div>
+          <div class="mini" style="margin-top:8px;" id="progressText">Mark lessons done when your team completes the challenge.</div>
+        </div>
+        <div class="nav" id="nav"></div>
+      </div>
+
+      <div class="panel" style="margin-top:14px;">
+        <div class="head">
+          <h3 id="quickTitle">Quick Links</h3>
+          <span class="badge">Classroom tools</span>
+        </div>
+        <div class="nav" style="gap:10px;">
+          <button id="btnOpenBugLog">
+            <div>
+              <div style="font-weight:800">🐛 Bug Log</div>
+              <div class="small">What failed? What changed? What worked?</div>
+            </div>
+            <span class="badge">Open</span>
+          </button>
+          <button id="btnOpenJobs">
+            <div>
+              <div style="font-weight:800">👥 Team Jobs</div>
+              <div class="small">Driver • Coder • Technician • Recorder</div>
+            </div>
+            <span class="badge">Open</span>
+          </button>
+          <button id="btnOpen3D">
+            <div>
+              <div style="font-weight:800">🧩 3D “Bumper Boss”</div>
+              <div class="small">Front attachment design challenge</div>
+            </div>
+            <span class="badge">Open</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <main>
+      <div class="card" id="lessonCard"></div>
+    </main>
+  </div>
+
+  <footer>
+    Built for classrooms: connection ladder, firmware day, battery reality, and resilient iteration.
+  </footer>
+</div>
+
+<script>
+  const $ = (s) => document.querySelector(s);
+
+  const UI = {
+    en: {
+      chips: ["Low speed first", "Log bugs (don’t hide them)", "One change at a time", "Team roles matter"],
+      level: "Level",
+      go: "Go",
+      check: "Check",
+      markDone: "Mark Done",
+      doneMsg: "Nice — logged and completed!",
+      correct: "✅ Correct! ",
+      notQuite: "❌ Not quite. ",
+      pickFirst: "Pick an answer first.",
+      resetTxt: "Reset Progress",
+      clearPicsTxt: "Clear Saved Photos",
+      addPhoto: "Add / Change Photo",
+      removePhoto: "Remove Photo"
+    },
+    es: {
+      chips: ["Empieza lento", "Registra fallas (no las escondas)", "Un cambio a la vez", "Roles en equipo"],
+      level: "Nivel",
+      go: "Ir",
+      check: "Revisar",
+      markDone: "Marcar listo",
+      doneMsg: "¡Bien — registrado y completado!",
+      correct: "✅ ¡Correcto! ",
+      notQuite: "❌ Casi. ",
+      pickFirst: "Elige una opción primero.",
+      resetTxt: "Reiniciar progreso",
+      clearPicsTxt: "Borrar fotos guardadas",
+      addPhoto: "Agregar / Cambiar foto",
+      removePhoto: "Quitar foto"
+    }
+  };
+
+  // --- COURSE CONTENT ---
+  // Designed to solve your real pain points: Day-1 is “pit crew / tech setup”
+  // then students rotate into coding with success fast.
+  const COURSE = [
+    {
+      id:"start_here", icon:"🧭", level:1,
+      en:{
+        title:"Start Here: How this class works (so mBots don’t eat the period)",
+        blurb:"Today is a systems day: batteries, firmware, USB permissions, and a first tiny program. Your win condition: one beep or LED change.",
+        stepsTitle:"Do this in order",
+        steps:[
+          "Form teams of 3–4. Assign roles (Driver, Coder, Technician, Recorder).",
+          "Technician: check battery power (dim LEDs = low batteries).",
+          "Coder: open ide.mblock.cc (Chrome).",
+          "Driver: robot stays flat on table/floor when connected.",
+          "Recorder: start a Bug Log entry the moment anything fails."
+        ],
+        activityTitle:"Activity",
+        activity:"Create a team name + label your robot. Decide your testing speed rule (start 30–45%).",
+        challengeTitle:"Challenge",
+        challenge:{
+          prompt:"What is the real goal of Day 1?",
+          options:["Perfect code","Fast success + reliable setup","Finishing the final project today"],
+          answerIndex:1,
+          explain:"Day 1 is about setup + confidence. Tiny wins unlock bigger builds."
+        },
+        chips:["Team roles","Bug log","Slow speed rule"]
+      },
+      es:{
+        title:"Empieza aquí: cómo funciona la clase",
+        blurb:"Hoy es día de sistema: pilas, firmware, permisos USB y un mini-programa. Tu meta: un beep o un LED.",
+        stepsTitle:"Haz esto en orden",
+        steps:[
+          "Equipos de 3–4. Roles (Conductor, Programador, Técnico, Registrador).",
+          "Técnico: revisa batería (LEDs tenues = pilas bajas).",
+          "Programador: abre ide.mblock.cc (Chrome).",
+          "Conductor: robot plano al conectar.",
+          "Registrador: abre el Bug Log cuando algo falle."
+        ],
+        activityTitle:"Actividad",
+        activity:"Nombre del equipo + etiqueta del robot. Regla de velocidad (30–45%).",
+        challengeTitle:"Reto",
+        challenge:{
+          prompt:"¿Cuál es la meta real del Día 1?",
+          options:["Código perfecto","Éxito rápido + conexión estable","Terminar el proyecto final hoy"],
+          answerIndex:1,
+          explain:"Día 1 = configuración y confianza."
+        },
+        chips:["Roles","Bug log","Velocidad baja"]
+      }
+    },
+
+    {
+      id:"pit_crew", icon:"🛠️", level:1,
+      en:{
+        title:"Pit Crew: Batteries + Firmware + Ports",
+        blurb:"Your first group is the Pit Crew. Their job is to make the robots usable for everyone else.",
+        stepsTitle:"Pit Crew checklist",
+        steps:[
+          "Power OFF before changing batteries.",
+          "Replace ALL batteries together (don’t mix old/new).",
+          "Confirm sensors are plugged in: Line Follower (often Port 2), Ultrasonic (often Port 3).",
+          "In mBlock, select Device → mBot / mBot(mCore).",
+          "If prompted, ALLOW USB device access. Unplug/replug if it fails."
+        ],
+        activityTitle:"Activity",
+        activity:"Make a ‘Tech OK’ signal: LED green or 1 beep on upload success.",
+        challengeTitle:"Challenge",
+        challenge:{
+          prompt:"If the robot doesn’t connect, what should you try FIRST?",
+          options:["Unplug/replug USB and refresh the page","Give up immediately","Change the wallpaper"],
+          answerIndex:0,
+          explain:"Most issues are cable + permission + refresh."
+        },
+        chips:["All batteries together","Port check","Allow USB"]
+      },
+      es:{
+        title:"Equipo de boxes: pilas + firmware + puertos",
+        blurb:"El primer grupo es el Equipo de boxes. Su trabajo es dejar los robots listos para todos.",
+        stepsTitle:"Lista rápida",
+        steps:[
+          "Apaga antes de cambiar pilas.",
+          "Cambia TODAS las pilas juntas (no mezclar).",
+          "Confirma sensores: Seguidor de línea (Puerto 2), Ultrasonido (Puerto 3).",
+          "En mBlock: Dispositivo → mBot / mBot(mCore).",
+          "Si pide permiso, PERMITIR USB. Desconecta/reconecta si falla."
+        ],
+        activityTitle:"Actividad",
+        activity:"Señal de ‘OK’: LED verde o 1 beep al cargar.",
+        challengeTitle:"Reto",
+        challenge:{
+          prompt:"Si no conecta, ¿qué intentas primero?",
+          options:["Desconectar/reconectar USB y recargar","Rendirse","Cambiar el fondo"],
+          answerIndex:0,
+          explain:"Casi siempre es cable/permisos/recargar."
+        },
+        chips:["Pilas juntas","Revisar puertos","Permitir USB"]
+      }
+    },
+
+    {
+      id:"first_success", icon:"✅", level:2,
+      en:{
+        title:"First Success: Beep + LED (your confidence builder)",
+        blurb:"This lesson is purposely tiny. You’re proving: (1) upload works, (2) your code changes the real world.",
+        stepsTitle:"Try this",
+        steps:[
+          "Events: ‘when program starts’ (or similar) goes at the top.",
+          "Add: beep once.",
+          "Add: set LED color (green).",
+          "Upload/Run. If it fails: use the Connection Ladder."
+        ],
+        activityTitle:"Activity",
+        activity:"Make 2 versions: ‘Start OK’ (green + 1 beep) and ‘Error’ (red + 2 beeps).",
+        codeTitle:"Pseudo-blocks",
+        codeText:"WHEN START\n  BEEP (short)\n  SET LED COLOR = GREEN",
+        challengeTitle:"Challenge",
+        challenge:{
+          prompt:"Why are LEDs useful while coding?",
+          options:["They show what the robot is doing","They make Wi-Fi stronger","They recharge batteries"],
+          answerIndex:0,
+          explain:"LEDs are a quick debugging signal."
+        },
+        chips:["Tiny win","Debug light","Upload test"]
+      },
+      es:{
+        title:"Primer éxito: beep + LED",
+        blurb:"Lección mini: pruebas que (1) la carga funciona y (2) tu código cambia el mundo real.",
+        stepsTitle:"Prueba esto",
+        steps:[
+          "Eventos: ‘cuando inicia’ arriba.",
+          "Agrega: beep corto.",
+          "Agrega: LED verde.",
+          "Cargar/Ejecutar. Si falla: Escalera de conexión."
+        ],
+        activityTitle:"Actividad",
+        activity:"2 versiones: ‘OK’ (verde + 1 beep) y ‘Error’ (rojo + 2 beeps).",
+        codeTitle:"Pseudobloques",
+        codeText:"AL INICIAR\n  BEEP (corto)\n  LED = VERDE",
+        challengeTitle:"Reto",
+        challenge:{
+          prompt:"¿Por qué sirven los LEDs al programar?",
+          options:["Muestran qué está pasando","Hacen Wi-Fi fuerte","Cargan la batería"],
+          answerIndex:0,
+          explain:"Los LEDs ayudan a depurar."
+        },
+        chips:["Éxito rápido","Luz para depurar","Prueba de carga"]
+      }
+    },
+
+    {
+      id:"motion_basics", icon:"🏁", level:2,
+      en:{
+        title:"Motion Basics: Forward, Stop, Turn (don’t let it yeet itself)",
+        blurb:"You’ll control motors with low power first. Speed = accuracy. Accuracy = learning.",
+        stepsTitle:"Try this",
+        steps:[
+          "Set power 30–45% (not 100%).",
+          "Move forward for 1 second, then stop.",
+          "Add a right turn, then stop.",
+          "Driver puts the robot in a safe test box area."
+        ],
+        activityTitle:"Activity",
+        activity:"Drive a square: forward → right → forward → right (repeat).",
+        codeTitle:"Pseudo-blocks",
+        codeText:"WHEN START\n  SET POWER = 40%\n  FORWARD 1s\n  STOP\n  TURN RIGHT 0.5s\n  STOP",
+        challengeTitle:"Challenge",
+        challenge:{
+          prompt:"Why start at ~40% instead of 100%?",
+          options:["It’s more precise","It makes it heavier","It drains batteries faster"],
+          answerIndex:0,
+          explain:"Lower speed gives you time to observe and adjust."
+        },
+        chips:["Power 30–45%","Stop after moves","Test box"]
+      },
+      es:{
+        title:"Movimiento básico: adelante, parar, girar",
+        blurb:"Controla motores con potencia baja primero. Velocidad = precisión.",
+        stepsTitle:"Prueba esto",
+        steps:[
+          "Potencia 30–45% (no 100%).",
+          "Adelante 1s y parar.",
+          "Giro derecho y parar.",
+          "Zona segura para pruebas."
+        ],
+        activityTitle:"Actividad",
+        activity:"Cuadrado: adelante → derecha → adelante → derecha (repetir).",
+        codeTitle:"Pseudobloques",
+        codeText:"AL INICIAR\n  POTENCIA = 40%\n  ADELANTE 1s\n  PARAR\n  GIRAR DER 0.5s\n  PARAR",
+        challengeTitle:"Reto",
+        challenge:{
+          prompt:"¿Por qué empezar a ~40%?",
+          options:["Más preciso","Más pesado","Gasta pilas más rápido"],
+          answerIndex:0,
+          explain:"Más lento = más control."
+        },
+        chips:["30–45%","Parar siempre","Zona segura"]
+      }
+    },
+
+    {
+      id:"sense_think_act", icon:"🧠", level:3,
+      en:{
+        title:"Sense → Think → Act (the robot brain model)",
+        blurb:"This is the whole game: read a sensor number, decide with IF, act with motors/LEDs.",
+        stepsTitle:"The 3 rules",
+        steps:[
+          "Sense: Line follower reads light/dark. Ultrasonic reads distance.",
+          "Think: IF / ELSE chooses a path.",
+          "Act: motors move; LEDs/beeps show your program state."
+        ],
+        activityTitle:"Activity",
+        activity:"Make a ‘distance alarm’: if distance < 20cm → red LED + beep, else green LED.",
+        codeTitle:"Pseudo-blocks",
+        codeText:"FOREVER\n  IF distance < 20\n    LED=RED; BEEP\n  ELSE\n    LED=GREEN",
+        challengeTitle:"Challenge",
+        challenge:{
+          prompt:"What do sensors do?",
+          options:["Measure the world so code can react","Make the robot sleep","Change your password"],
+          answerIndex:0,
+          explain:"Sensors give numbers for decisions."
+        },
+        chips:["Sense","IF/ELSE","State lights"]
+      },
+      es:{
+        title:"Sentir → Pensar → Actuar",
+        blurb:"Todo: leer sensor, decidir con SI, actuar con motores/LEDs.",
+        stepsTitle:"3 reglas",
+        steps:[
+          "Sentir: seguidor de línea (claro/oscuro). Ultrasonido (distancia).",
+          "Pensar: SI / SINO elige.",
+          "Actuar: motores; LEDs/beeps muestran estado."
+        ],
+        activityTitle:"Actividad",
+        activity:"Alarma: si distancia < 20cm → LED rojo + beep; si no → verde.",
+        codeTitle:"Pseudobloques",
+        codeText:"POR SIEMPRE\n  SI distancia < 20\n    LED=ROJO; BEEP\n  SINO\n    LED=VERDE",
+        challengeTitle:"Reto",
+        challenge:{
+          prompt:"¿Qué hacen los sensores?",
+          options:["Miden el mundo para reaccionar","Duermen al robot","Cambian contraseña"],
+          answerIndex:0,
+          explain:"Dan números para decisiones."
+        },
+        chips:["Sentir","SI/SINO","Luces de estado"]
+      }
+    },
+
+    {
+      id:"multi_goal_preview", icon:"🚀", level:4,
+      en:{
+        title:"Choose Your Multi-Lesson Mission (teacher picks or teams vote)",
+        blurb:"Now that your setup is stable, you’ll build toward one of three big goals (each can run 2–5 lessons).",
+        stepsTitle:"Pick one mission arc",
+        steps:[
+          "Mission A: Line-Follow City Map (teams build the map + tune a line follower).",
+          "Mission B: Delivery Bot (drive to zones, drop a paper ‘package’, return).",
+          "Mission C: 3D Bumper Boss (design a front attachment + test for real function)."
+        ],
+        activityTitle:"Activity",
+        activity:"Teams propose a ‘Definition of Done’ for the mission (what counts as success?).",
+        challengeTitle:"Challenge",
+        challenge:{
+          prompt:"What should your mission definition include?",
+          options:["A test you can repeat","A vibe only","A promise with no proof"],
+          answerIndex:0,
+          explain:"Engineering needs repeatable tests."
+        },
+        chips:["Pick a goal","Define done","Repeatable tests"]
+      },
+      es:{
+        title:"Elige una misión (multi-lección)",
+        blurb:"Conexión lista → ahora una meta grande (2–5 lecciones).",
+        stepsTitle:"Elige una",
+        steps:[
+          "Misión A: Mapa ciudad (seguir línea + ajustar).",
+          "Misión B: Repartidor (zonas + entregar + volver).",
+          "Misión C: Bumper 3D (diseñar accesorio frontal funcional)."
+        ],
+        activityTitle:"Actividad",
+        activity:"Define ‘Listo’ (qué prueba demuestra éxito).",
+        challengeTitle:"Reto",
+        challenge:{
+          prompt:"¿Qué debe incluir la definición de éxito?",
+          options:["Prueba repetible","Solo vibra","Promesa sin evidencia"],
+          answerIndex:0,
+          explain:"Ingeniería = pruebas repetibles."
+        },
+        chips:["Meta","Definir éxito","Pruebas"]
+      }
+    }
+  ];
+
+  // --- Progress ---
+  const STORE_KEY = "mbot_course_progress_v1";
+  const PIC_KEY = "mbot_course_pics_v1";
+
+  function loadProgress(){
+    try{
+      const raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return { done:{}, last: COURSE[0].id };
+      const p = JSON.parse(raw);
+      if (!p.last) p.last = COURSE[0].id;
+      if (!p.done) p.done = {};
+      return p;
+    }catch(e){
+      return { done:{}, last: COURSE[0].id };
+    }
+  }
+  function saveProgress(p){ localStorage.setItem(STORE_KEY, JSON.stringify(p)); }
+
+  function loadPics(){
+    try{ return JSON.parse(localStorage.getItem(PIC_KEY) || "{}"); }catch(e){ return {}; }
+  }
+  function savePics(p){ localStorage.setItem(PIC_KEY, JSON.stringify(p)); }
+
+  let progress = loadProgress();
+  let pics = loadPics();
+  let currentLessonId = progress.last || COURSE[0].id;
+
+  function lessonById(id){ return COURSE.find(x => x.id===id) || COURSE[0]; }
+  function t(){ return UI[$("#langSel").value] || UI.en; }
+  function getLesson(L){
+    return ($("#langSel").value==="es" ? L.es : L.en) || L.en;
+  }
+  function esc(s){ return String(s||"").replace(/[&<>"']/g, (m)=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
+
+  function renderHero(){
+    $("#heroChips").innerHTML = "";
+    (t().chips||[]).forEach(c=>{
+      const d = document.createElement("div");
+      d.className = "chip";
+      d.textContent = c;
+      $("#heroChips").appendChild(d);
+    });
+  }
+
+  function renderProgress(){
+    const total = COURSE.length;
+    const doneCount = COURSE.filter(L => progress.done[L.id]).length;
+    const pct = Math.round((doneCount/total)*100);
+    $("#progressBadge").textContent = pct + "%";
+    $("#progressBar").style.width = pct + "%";
+  }
+
+  function renderNav(){
+    const ui = t();
+    const nav = $("#nav");
+    nav.innerHTML = "";
+    COURSE.forEach((L, idx)=>{
+      const done = !!progress.done[L.id];
+      const btn = document.createElement("button");
+      btn.innerHTML = `
+        <div>
+          <div style="font-weight:900">${L.icon} ${idx+1}. ${esc(getLesson(L).title)}</div>
+          <div class="small">${ui.level} ${L.level}</div>
+        </div>
+        <span class="badge ${done ? "done":""}">${done ? "✓" : ui.go}</span>
+      `;
+      btn.addEventListener("click", ()=>{
+        currentLessonId = L.id;
+        progress.last = L.id;
+        saveProgress(progress);
+        renderAll();
+        window.scrollTo({top:0, behavior:"smooth"});
+      });
+      nav.appendChild(btn);
+    });
+  }
+
+  function renderLesson(){
+    const ui = t();
+    const L = lessonById(currentLessonId);
+    const T = getLesson(L);
+
+    const picId = `pic_${L.id}`;
+    const savedPic = pics[picId] || "";
+
+    const stepsHtml = (T.steps||[]).map(s=>`<li>${esc(s)}</li>`).join("");
+    const codeHtml = T.codeText ? `
+      <div class="step">
+        <h4>${esc(T.codeTitle || "Code")}</h4>
+        <div class="codebox">${esc(T.codeText)}</div>
+      </div>` : "";
+
+    const imgHtml = `
+      <div class="step">
+        <h4>📷 Photos (add your own)</h4>
+        <p class="mini">Add a real photo of your robot ports, your tape map, or your code screenshot. It saves on this device only.</p>
+        <div class="toolbar">
+          <label class="btn secondary" style="cursor:pointer;">
+            🖼️ ${ui.addPhoto}
+            <input id="filePick" type="file" accept="image/*" style="display:none;">
+          </label>
+          <button class="btn danger" id="btnRemovePhoto">🗑️ ${ui.removePhoto}</button>
+        </div>
+        <div class="imgbox ${savedPic ? "" : "hidden"}" id="imgWrap">
+          <img id="imgEl" alt="Lesson photo">
+        </div>
+      </div>
+    `;
+
+    const q = T.challenge || {prompt:"", options:[], answerIndex:0, explain:""};
+    const optsHtml = (q.options||[]).map((o,i)=>`
+      <label class="opt">
+        <input type="radio" name="q" value="${i}">
+        <div>${esc(o)}</div>
+      </label>
+    `).join("");
+
+    $("#lessonCard").innerHTML = `
+      <h3>${L.icon} ${esc(T.title)}</h3>
+      <p>${esc(T.blurb)}</p>
+
+      <div class="step">
+        <h4>${esc(T.stepsTitle || "Steps")}</h4>
+        <ol>${stepsHtml}</ol>
+      </div>
+
+      <div class="step">
+        <h4>${esc(T.activityTitle || "Activity")}</h4>
+        <p style="margin:0;color:var(--muted)">${esc(T.activity || "")}</p>
+        <div class="chips" style="margin-top:10px;">
+          ${(T.chips||[]).map(c=>`<div class="chip">${esc(c)}</div>`).join("")}
+        </div>
+      </div>
+
+      ${codeHtml}
+      ${imgHtml}
+
+      <div class="quiz">
+        <div class="q">
+          <div class="qtitle">${esc(T.challengeTitle || "Challenge")}: ${esc(q.prompt||"")}</div>
+          <div class="opts" id="opts">${optsHtml}</div>
+          <div class="toolbar">
+            <button class="btn good" id="btnCheck">✅ ${ui.check}</button>
+            <button class="btn secondary" id="btnMarkDone">🏁 ${ui.markDone}</button>
+          </div>
+          <div class="result hidden" id="res"></div>
+        </div>
+      </div>
+    `;
+
+    // wire quiz
+    const res = $("#res");
+    let chosen = -1;
+    $("#lessonCard").querySelectorAll('input[name="q"]').forEach(r=>{
+      r.addEventListener("change", ()=>{ chosen = Number(r.value); });
+    });
+
+    $("#btnCheck").addEventListener("click", ()=>{
+      if (chosen < 0){
+        res.className = "result bad";
+        res.textContent = ui.pickFirst;
+        res.classList.remove("hidden");
+        return;
+      }
+      const ok = chosen === q.answerIndex;
+      res.className = "result " + (ok ? "good" : "bad");
+      res.textContent = (ok ? ui.correct : ui.notQuite) + (q.explain || "");
+      res.classList.remove("hidden");
+      if (ok){
+        progress.done[L.id] = true;
+        saveProgress(progress);
+        renderProgress();
+        renderNav();
+      }
+    });
+
+    $("#btnMarkDone").addEventListener("click", ()=>{
+      progress.done[L.id] = true;
+      saveProgress(progress);
+      renderProgress();
+      renderNav();
+      res.className = "result good";
+      res.textContent = ui.doneMsg;
+      res.classList.remove("hidden");
+    });
+
+    // wire photo save
+    const imgWrap = $("#imgWrap");
+    const imgEl = $("#imgEl");
+    if (savedPic){
+      imgEl.src = savedPic;
+      imgWrap.classList.remove("hidden");
+    }
+
+    const filePick = $("#filePick");
+    filePick.addEventListener("change", async ()=>{
+      const f = filePick.files && filePick.files[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        const dataUrl = reader.result;
+        pics[picId] = dataUrl;
+        savePics(pics);
+        imgEl.src = dataUrl;
+        imgWrap.classList.remove("hidden");
+      };
+      reader.readAsDataURL(f);
+    });
+
+    $("#btnRemovePhoto").addEventListener("click", ()=>{
+      delete pics[picId];
+      savePics(pics);
+      imgEl.src = "";
+      imgWrap.classList.add("hidden");
+    });
+  }
+
+  function openModal(title, html){
+    // quick lightweight modal
+    const existing = $("#modal");
+    if (existing) existing.remove();
+
+    const div = document.createElement("div");
+    div.id = "modal";
+    div.style.position = "fixed";
+    div.style.inset = "0";
+    div.style.background = "rgba(0,0,0,.55)";
+    div.style.display = "flex";
+    div.style.alignItems = "center";
+    div.style.justifyContent = "center";
+    div.style.padding = "18px";
+    div.style.zIndex = "9999";
+    div.innerHTML = `
+      <div style="max-width:900px;width:100%; background: rgba(16,26,51,.95); border:1px solid rgba(255,255,255,.12);
+                  border-radius: 22px; box-shadow: var(--shadow); overflow:hidden;">
+        <div style="padding:14px 14px 10px; display:flex; justify-content:space-between; gap:10px; align-items:center;">
+          <div style="font-weight:900">${title}</div>
+          <button class="btn secondary" id="btnClose">✖ Close</button>
+        </div>
+        <div style="padding:0 14px 14px;">
+          ${html}
+        </div>
+      </div>
+    `;
+    document.body.appendChild(div);
+    div.addEventListener("click", (e)=>{ if (e.target===div) div.remove(); });
+    $("#btnClose").addEventListener("click", ()=>div.remove());
+  }
+
+  function renderAll(){
+    $("#resetTxt").textContent = t().resetTxt;
+    $("#clearPicsTxt").textContent = t().clearPicsTxt;
+    renderHero();
+    renderProgress();
+    renderNav();
+    renderLesson();
+  }
+
+  // Buttons
+  $("#btnReset").addEventListener("click", ()=>{
+    progress = { done:{}, last: COURSE[0].id };
+    saveProgress(progress);
+    currentLessonId = COURSE[0].id;
+    renderAll();
+  });
+
+  $("#btnClearPics").addEventListener("click", ()=>{
+    pics = {};
+    savePics(pics);
+    renderAll();
+  });
+
+  $("#btnPrintLesson").addEventListener("click", ()=>window.print());
+
+  $("#btnOpenBugLog").addEventListener("click", ()=>{
+    openModal("🐛 Bug Log (copy into your notebook)", `
+      <div class="step">
+        <h4>Bug Log format (FAST + useful)</h4>
+        <ol>
+          <li><strong>Bug name:</strong> (ex: “USB not showing”) </li>
+          <li><strong>What we expected:</strong></li>
+          <li><strong>What happened:</strong></li>
+          <li><strong>One change we tried:</strong></li>
+          <li><strong>Result:</strong> (better / worse / same)</li>
+          <li><strong>Next test:</strong></li>
+        </ol>
+        <p class="mini">Rule: only change ONE thing at a time, or you won’t know what fixed it.</p>
+      </div>
+    `);
+  });
+
+  $("#btnOpenJobs").addEventListener("click", ()=>{
+    openModal("👥 Team Jobs (rotate each lesson)", `
+      <div class="step">
+        <h4>Driver</h4>
+        <p class="mini">Hands on robot. Safety + test area. Announces “RUNNING!” before motors move.</p>
+      </div>
+      <div class="step">
+        <h4>Coder</h4>
+        <p class="mini">Builds blocks exactly. Reads the plan out loud. Keeps speeds low first.</p>
+      </div>
+      <div class="step">
+        <h4>Technician (Pit Crew)</h4>
+        <p class="mini">USB, batteries, ports, firmware prompts, sensor seating, cable swaps.</p>
+      </div>
+      <div class="step">
+        <h4>Recorder</h4>
+        <p class="mini">Bug Log + what changed + what finally worked. Takes photos for the page.</p>
+      </div>
+    `);
+  });
+
+  $("#btnOpen3D").addEventListener("click", ()=>{
+    openModal("🧩 3D ‘Bumper Boss’ Attachment Challenge (multi-lesson)", `
+      <div class="step">
+        <h4>The Idea</h4>
+        <p class="mini">
+          That front opening on the mBot is perfect for a “functional upgrade” series.
+          Students design an attachment that clips/screws on and does a real job.
+        </p>
+      </div>
+      <div class="step">
+        <h4>3 build levels</h4>
+        <ol>
+          <li><strong>Level 1:</strong> Nameplate / team badge (must mount securely).</li>
+          <li><strong>Level 2:</strong> Bumper that protects the ultrasonic sensor + survives a gentle crash test.</li>
+          <li><strong>Level 3:</strong> Tool head: plow, paper-clip grabber, “package pusher,” or marker holder.</li>
+        </ol>
+      </div>
+      <div class="step">
+        <h4>Testing rule</h4>
+        <p class="mini">
+          Create a repeatable test: “Robot drives into a foam block at 40% power 3 times — attachment stays on and sensor still works.”
+        </p>
+      </div>
+      <div class="step">
+        <h4>CAD hint</h4>
+        <p class="mini">
+          Start by measuring the opening with a ruler/calipers and designing a simple “plate + tabs.”
+          Iterate: print draft at low infill, test fit, adjust, reprint.
+        </p>
+      </div>
+    `);
+  });
+
+  // init
+  renderAll();
+</script>
+</body>
+</html>
